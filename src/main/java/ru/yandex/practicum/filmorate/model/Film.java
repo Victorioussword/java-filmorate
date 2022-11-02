@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Data
@@ -15,21 +16,21 @@ import java.time.LocalDate;
 public class Film {
 
     @Setter
-    @NotNull
-    private int id;
+    private long id;
 
-    @NotNull
+
     @NotBlank
     final private String name;
 
-    @NotNull
+
     @NotBlank
+    @Size (max = 200)
     final private String description;
 
     @NotNull
     final private LocalDate releaseDate;
 
-    @NotNull
+
     @Positive
     final private long duration;
 }

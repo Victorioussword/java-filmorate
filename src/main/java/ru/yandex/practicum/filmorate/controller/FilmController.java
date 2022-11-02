@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -12,18 +13,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
     private final static LocalDate FIRST_FILM_DATE = LocalDate.of(1895, 12, 28);
-    private final static int MAX_SIZE_DESCRIPTION = 200;
 
-    int id = 1;
 
-    private Map<Integer, Film> films = new HashMap<>();
-    private final static Logger log = LoggerFactory.getLogger(FilmController.class);
+    private int id = 1;
+
+    private Map<Long, Film> films = new HashMap<>();
 
 
     @GetMapping
@@ -36,7 +36,7 @@ public class FilmController {
     public Film postFilm(@Valid @RequestBody Film film) {
         checkReleaseDate(film);
         checkName(film);
-        checkSizeOfDescription(film);
+
         checkDuration(film);
         film.setId(id++);
         films.put(film.getId(), film);
@@ -69,12 +69,12 @@ public class FilmController {
         }
     }
 
-    private void checkSizeOfDescription(Film film) {
-        if (film.getDescription().length() > 200) {
-            log.info("Указано не корректное описание.");
-            throw new ValidationException("Слишком длинное описание, max =" + MAX_SIZE_DESCRIPTION + " символов.");
-        }
-    }
+
+
+
+
+
+
 
     private void checkDuration(Film film) {
         if (film.getDuration() < 0) {

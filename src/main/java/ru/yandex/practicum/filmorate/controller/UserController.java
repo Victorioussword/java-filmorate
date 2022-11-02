@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -14,23 +14,23 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
-    private Map<Integer, User> users = new HashMap<>();
-    int id = 1;
+
+    private Map<Long, User> users = new HashMap<>();
+    private int id = 1;
 
     @GetMapping
     public Collection<User> getUsers() {
         log.info("GET /users. Количество пользователей: {}", users.size());
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         return users.values();
     }
 
     @PostMapping
     public User postUser(@Valid @RequestBody User user) {
-        ageCheck(user);
+
         loginCheck(user);
         user.setId(id++);
         User userOkName = emptyNameCheck(user);
@@ -41,25 +41,24 @@ public class UserController {
 
     @PutMapping
     public User putUser(@Valid @RequestBody User user) {
-        ageCheck(user);
+
         loginCheck(user);
         checkId(user);
         User userOkName = emptyNameCheck(user);
         users.put(userOkName.getId(), userOkName);
-        log.info("PUT /users. ДОбновлены данные пользователя {}", users.size());
+        log.info("PUT /users. Обновлены данные пользователя {}", user.getId());
         return userOkName;
     }
 
 
-    private void ageCheck(@Valid @RequestBody User user) {
-        LocalDate currentDay = LocalDate.now();
-        if (currentDay.isBefore(user.getBirthday())) {
-            log.info("Указана не корректная дата рождения. Введено {}", user.getBirthday());
-            throw new ValidationException("Указана не корректная дата рождения");
-        }
-    }
 
-    private void loginCheck(@Valid @RequestBody User user) {
+
+
+
+
+
+
+    private void loginCheck( User user) {
         String login = user.getLogin();
         if (login.contains(" ")) {
             log.info("Указан не корректный логин. Введено {}", user.getLogin());
@@ -67,9 +66,9 @@ public class UserController {
         }
     }
 
-    private User emptyNameCheck(@Valid @RequestBody User user) {
+    private User emptyNameCheck( User user) {
         String name = user.getName();
-        if (name == null || name.isEmpty()) {
+        if (name == null || name.isBlank()) {
             user.setName(user.getLogin());
             log.info("Поле name пустое - в качестве name использован логин {}", user.getLogin());
         }
