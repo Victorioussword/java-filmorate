@@ -33,7 +33,4 @@ public class User {
     private final String login;
 
     private String name;
-
-
-
 }
