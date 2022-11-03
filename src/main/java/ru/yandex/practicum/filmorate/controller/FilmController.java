@@ -27,17 +27,14 @@ public class FilmController {
 
 
     @GetMapping
-    public Collection<Film> getUsers() {
+    public Collection<Film> get() {
         log.info("GET /films. Возвращены данные о {} фильмах.", films.size());
         return films.values();
     }
 
     @PostMapping
-    public Film postFilm(@Valid @RequestBody Film film) {
+    public Film post(@Valid @RequestBody Film film) {
         checkReleaseDate(film);
-        checkName(film);
-
-        checkDuration(film);
         film.setId(id++);
         films.put(film.getId(), film);
         log.info("POST /films. Добавлены данные о фильме {}.", film);
@@ -45,10 +42,8 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film putFilm(@Valid @RequestBody Film film) {
+    public Film put(@Valid @RequestBody Film film) {
         checkReleaseDate(film);
-        checkName(film);
-        checkDuration(film);
         checkId(film);
         films.put(film.getId(), film);
         log.info("PUT /films. Обновлены данные о фильме {}.", film.toString());
@@ -59,27 +54,6 @@ public class FilmController {
         if (film.getReleaseDate().isBefore(FIRST_FILM_DATE)) {
             log.info("Указаны не корректная дата выпуска {}.", film.getReleaseDate());
             throw new ValidationException("Кино не существовало до " + FIRST_FILM_DATE.toString());
-        }
-    }
-
-    private void checkName(Film film) {
-        if (film.getName() == null || film.getName().isEmpty() || film.getName().isBlank()) {
-            log.info("Указано не корректное название.");
-            throw new ValidationException("Название фильма не введено.");
-        }
-    }
-
-
-
-
-
-
-
-
-    private void checkDuration(Film film) {
-        if (film.getDuration() < 0) {
-            log.info("Указана не корректная длительность: {}.", film.getDuration());
-            throw new ValidationException("Указана не корректная длительность");
         }
     }
 

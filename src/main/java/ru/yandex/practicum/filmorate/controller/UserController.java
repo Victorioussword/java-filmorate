@@ -23,40 +23,31 @@ public class UserController {
     private int id = 1;
 
     @GetMapping
-    public Collection<User> getUsers() {
+    public Collection<User> get() {
         log.info("GET /users. Количество пользователей: {}", users.size());
         return users.values();
     }
 
     @PostMapping
-    public User postUser(@Valid @RequestBody User user) {
+    public User post(@Valid @RequestBody User user) {
 
         loginCheck(user);
         user.setId(id++);
-        User userOkName = emptyNameCheck(user);
-        users.put(userOkName.getId(), userOkName);
+        emptyNameCheck(user);
+        users.put(user.getId(), user);
         log.info("POST /users. Добавлен user: {}", user);
         return user;
     }
 
     @PutMapping
-    public User putUser(@Valid @RequestBody User user) {
-
+    public User put(@Valid @RequestBody User user) {
         loginCheck(user);
         checkId(user);
-        User userOkName = emptyNameCheck(user);
-        users.put(userOkName.getId(), userOkName);
+        emptyNameCheck(user);
+        users.put(user.getId(), user);
         log.info("PUT /users. Обновлены данные пользователя {}", user.getId());
-        return userOkName;
+        return user;
     }
-
-
-
-
-
-
-
-
 
     private void loginCheck( User user) {
         String login = user.getLogin();
@@ -66,13 +57,13 @@ public class UserController {
         }
     }
 
-    private User emptyNameCheck( User user) {
+    private void emptyNameCheck( User user) {
         String name = user.getName();
         if (name == null || name.isBlank()) {
             user.setName(user.getLogin());
             log.info("Поле name пустое - в качестве name использован логин {}", user.getLogin());
         }
-        return user;
+        return;
     }
 
     private void checkId(User user) {
