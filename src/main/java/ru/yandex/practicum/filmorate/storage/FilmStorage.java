@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface FilmStorage {
 
@@ -15,7 +16,7 @@ public interface FilmStorage {
 
 
    // новый методы
-    Film  getById(long id);
+    Optional <Film>  getById(long id);
 
 
 }

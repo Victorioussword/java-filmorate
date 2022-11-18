@@ -16,6 +16,7 @@ import java.util.*;
 @AllArgsConstructor
 public class Film {
 
+   // @Positive  // 16-11-22
     @Setter
     private long id;
 
@@ -23,7 +24,7 @@ public class Film {
     final private String name;
 
     @NotBlank
-    @Size (max = 200)
+    @Size(max = 200)
     final private String description;
 
     @NotNull

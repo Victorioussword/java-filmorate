@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,15 +10,20 @@ import java.util.Map;
 @Service
 public class InMemoryUserStorage implements UserStorage {
 
+    private int id = 1;
+
     private final Map<Long, User> users = new HashMap<>();
 
     @Override
     public Map<Long, User> getAll() {
-        return users;
+        Map<Long, User> forReturn = new HashMap<>();
+        forReturn.putAll(users);
+        return forReturn;
     }
 
     @Override
     public User add(User user) {
+        user.setId(id++);
         users.put(user.getId(), user);
         return user;
     }
