@@ -27,13 +27,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> processExceptionHandler(final ProcessException e) {
-        log.warn("500", e);
-        return Map.of("500 {}", e.toString());
-    }
-
-    @ExceptionHandler
     public ResponseEntity<String> negativeTopQuantityHandler(ConstraintViolationException ex){
         log.warn("400", ex);
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);

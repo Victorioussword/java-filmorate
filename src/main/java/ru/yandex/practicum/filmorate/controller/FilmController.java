@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.sercice.FilmService;
@@ -44,7 +43,7 @@ public class FilmController {
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
         checkReleaseDate(film);
-        checkId(film.getId());
+
         filmService.update(film);
         return film;
     }
@@ -56,7 +55,7 @@ public class FilmController {
 
     @DeleteMapping("/{id}/like/{userId}")
     public Film delLike(@PathVariable long id, @PathVariable long userId) {
-        checkId(id);
+
         return filmService.delLike(id, userId);
     }
 
@@ -72,11 +71,6 @@ public class FilmController {
         }
     }
 
-    private void checkId(long id) {
-        if (!filmService.getAll().containsKey(id)) {
-            log.info("Фильм с id {} не найден", id);
-            throw new NotFoundException("Фильм с id" + id + "не обнаружен");
-        }
-    }
+
 
 }

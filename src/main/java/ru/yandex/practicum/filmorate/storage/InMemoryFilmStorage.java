@@ -3,9 +3,8 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class InMemoryFilmStorage implements FilmStorage {

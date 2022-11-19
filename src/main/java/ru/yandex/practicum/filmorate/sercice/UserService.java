@@ -17,105 +17,74 @@ import java.util.stream.Collectors;
 public class UserService {
 
 
-    private final UserStorage inMemoryUserStorage;
+    private final UserStorage userStorage;
 
     public Map<Long, User> getAll() {
-        log.info("GET /users. Количество пользователей: {}", inMemoryUserStorage.getAll().size());
-        return inMemoryUserStorage.getAll();
+        log.info("GET /users. Количество пользователей: {}", userStorage.getAll().size());
+        return userStorage.getAll();
     }
 
     public User add(User user) {
-
-        inMemoryUserStorage.add(user);
+        userStorage.add(user);
         log.info("Добавлен user: {}", user);
         return user;
     }
 
     public User update(User user) {
-
-        inMemoryUserStorage.update(user);
+        checkId(user.getId());
+        userStorage.update(user);
         log.info("PUT /users. Обновлены данные пользователя {}", user.getId());
         return user;
     }
 
     public User getById(long id) {
-        Optional<User> userOpt = inMemoryUserStorage.getById(id);
+        Optional<User> userOpt = userStorage.getById(id);
         User user = userOpt.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
         log.info("Возвращены данные о фильме {}", userOpt.get().toString());
         return user;
-
-
-        // if (!inMemoryUserStorage.getAll().containsKey(id)) {
-        //     throw new NotFoundException("Пользователь с Id = " + id + " не существует!");
-        //   }
-        //  return inMemoryUserStorage.getById(id);
     }
 
     public User addFriend(long friendOneId, long friendTwoId) {
-        Optional<User> userOptOne = inMemoryUserStorage.getById(friendOneId);
-        Optional<User> userOptTwo = inMemoryUserStorage.getById(friendTwoId);
-
-        User userOne = userOptOne.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendOneId + " не обнаружен"));
-        User userTwo = userOptTwo.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendTwoId + " не обнаружен"));
-
+        checkId(friendOneId);
+        checkId(friendTwoId);
+        User userOne = userStorage.getById(friendOneId).get();
+        User userTwo = userStorage.getById(friendTwoId).get();
         userOne.getFriends().add(friendTwoId);
         userTwo.getFriends().add(friendOneId);
-
-        inMemoryUserStorage.update(userOne);
-        inMemoryUserStorage.update(userTwo);
+        userStorage.update(userOne);
+        userStorage.update(userTwo);
 
         return userOne;
     }
 
     public User dellFriend(long friendOneId, long friendTwoId) {
-
-        Optional<User> userOptOne = inMemoryUserStorage.getById(friendOneId);
-        Optional<User> userOptTwo = inMemoryUserStorage.getById(friendTwoId);
-
-        User userOne = userOptOne.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendOneId + " не обнаружен"));
-        User userTwo = userOptTwo.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendTwoId + " не обнаружен"));
-
+        User userOne = userStorage.getById(friendOneId).get();
+        User userTwo = userStorage.getById(friendTwoId).get();
         userOne.getFriends().remove(friendTwoId);
         userTwo.getFriends().remove(friendOneId);
-
-        inMemoryUserStorage.update(userOne);
-        inMemoryUserStorage.update(userTwo);
+        userStorage.update(userOne);
+        userStorage.update(userTwo);
 
         return userOne;
     }
 
     public List< User> getFriends(long id) {
-
-        Optional<User> userOptOne = inMemoryUserStorage.getById(id);
-        User userOne = userOptOne.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
-
-        List< User> friends = new ArrayList<>();
-        for (Long idFriend : userOne.getFriends()) {
-            friends.add(inMemoryUserStorage.getById(idFriend).get());
-        }
-        return friends;
+        User userOne = userStorage.getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
+        return userOne.getFriends().stream().map(this::getById).collect(Collectors.toList());
     }
 
     public List<User> getCommonFriends(long friendOneId, long friendTwoId) {
+        User userOne = userStorage.getById(friendOneId).get();
+        User userTwo = userStorage.getById(friendTwoId).get();
+        return userOne.getFriends().stream()
+                .filter(id -> userTwo.getFriends().contains(id))
+                .map(this::getById).collect(Collectors.toList());
+    }
 
-        Optional<User> userOptOne = inMemoryUserStorage.getById(friendOneId);
-        Optional<User> userOptTwo = inMemoryUserStorage.getById(friendTwoId);
-
-        User userOne = userOptOne.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendOneId + " не обнаружен"));
-        User userTwo = userOptTwo.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendTwoId + " не обнаружен"));
-
-        Set<Long> friendsOne = userOne.getFriends();
-        Set<Long> friendsTwo = userTwo.getFriends();
-
-        List<User> commonFriends = new ArrayList<>();
-
-        for (long frIdOne : friendsOne) {
-            for (long frIdTwo : friendsTwo) {
-                if (frIdOne == frIdTwo) {
-                    commonFriends.add(inMemoryUserStorage.getById(frIdOne).get());
-                }
-            }
+    private void checkId(long id) {
+        if (!userStorage.getAll().containsKey(id)) {
+            log.info("Пользователь не существует {}", id);
+            throw new NotFoundException("Пользователь не существует");
         }
-        return commonFriends;
     }
 }

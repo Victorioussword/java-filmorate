@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -19,68 +18,65 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
 
-    private final FilmStorage inMemoryFilmStorage;
-    private final UserStorage inMemoryUserStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     public Map<Long, Film> getAll() {
-        log.info("Возвращены данные о {} фильмах.", inMemoryFilmStorage.getAll().size());
-        return inMemoryFilmStorage.getAll();
+        log.info("Возвращены данные о {} фильмах.", filmStorage.getAll().size());
+        return filmStorage.getAll();
     }
 
     public Film add(Film film) {
 
-        inMemoryFilmStorage.add(film);
+        filmStorage.add(film);
         log.info("Добавлены данные о фильме {}.", film.toString());
         return film;
     }
 
     public Film getById(long id) {
 
-        Optional<Film> filmOpt = inMemoryFilmStorage.getById(id);
-        Film film = filmOpt.orElseThrow(() -> new NotFoundException("Фильм с Id = " + id + " не существует!"));
-        log.info("Возвращены данные о фильме {}", filmOpt.get().toString());
+        Film film = filmStorage.getById(id).orElseThrow(() -> new NotFoundException("Фильм с Id = " + id + " не существует!"));
+        log.info("Возвращены данные о фильме {}", filmStorage.getById(id).get().toString());
         return film;
     }
 
     public Film update(Film film) {
-
-        inMemoryFilmStorage.update(film);
+         checkId(film.getId());
+        filmStorage.update(film);
         log.info("Обновлены данные о фильме {}.", film.toString());
         return film;
     }
 
     public Film addLike(long id, long userId) {
 
-        Optional<Film> filmOptId = inMemoryFilmStorage.getById(id);
-        Film filmId = filmOptId.orElseThrow(() -> new NotFoundException("Указан не существующий Id фильма или не существующий Id пользователя"));
+        Film film = filmStorage.getById(id).orElseThrow(() -> new NotFoundException("Указан не существующий Id фильма или не существующий Id пользователя"));
+        User user = userStorage.getById(userId).orElseThrow(() -> new NotFoundException("Указан не существующий Id фильма или не существующий Id пользователя"));
 
-        Optional<Film> filmOptUserId = inMemoryFilmStorage.getById(userId);
-        Film filmUserId = filmOptUserId.orElseThrow(() -> new NotFoundException("Указан не существующий Id фильма или не существующий Id пользователя"));
-
-        filmId.getLikes().add(filmUserId.getId());
-        return inMemoryFilmStorage.update(filmId);
+        film.getLikes().add(user.getId());
+        return filmStorage.update(film);
     }
 
     public Film delLike(long id, long userId) {
 
-        Optional<User> userOpt = inMemoryUserStorage.getById(userId);
-        userOpt.orElseThrow(() -> new NotFoundException("User с id" + id + "не обнаружен"));
+        userStorage.getById(userId).orElseThrow(() -> new NotFoundException("User с id" + id + "не обнаружен"));
 
-        Optional<Film> filmOpt = inMemoryFilmStorage.getById(id);
-        Film film = filmOpt.orElseThrow(() -> new NotFoundException("Фильм с id" + id + "не обнаружен"));
-        for (long like : film.getLikes()) {
-            if (like == userId) {
-                film.getLikes().remove(userId);
-            }
-        }
-        inMemoryFilmStorage.update(film);
+        Film film = filmStorage.getById(id).orElseThrow(() -> new NotFoundException("Фильм с id" + id + "не обнаружен"));
+        film.getLikes().remove(userId);
+        filmStorage.update(film);
         return film;
     }
 
     public Collection<Film> getPopular(int top) {
-        return inMemoryFilmStorage.getAll().values().stream()
+        return filmStorage.getAll().values().stream()
                 .sorted((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()))
                 .limit(top)
                 .collect(Collectors.toList());
     }
+    private void checkId(long id) {
+        if (!filmStorage.getAll().containsKey(id)) {
+            log.info("Фильм с id {} не найден", id);
+            throw new NotFoundException("Фильм с id" + id + "не обнаружен");
+        }
+    }
+
 }
