@@ -3,12 +3,11 @@ package ru.yandex.practicum.filmorate.sercice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import javax.validation.Valid;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,7 +19,7 @@ public class UserService {
 
     private final UserStorage inMemoryUserStorage;
 
-    public Map< Long , User> getAll() {
+    public Map<Long, User> getAll() {
         log.info("GET /users. Количество пользователей: {}", inMemoryUserStorage.getAll().size());
         return inMemoryUserStorage.getAll();
     }
@@ -40,43 +39,83 @@ public class UserService {
     }
 
     public User getById(long id) {
-        if (!inMemoryUserStorage.getAll().containsKey(id)) {
-            throw new NotFoundException("Пользователь с Id = " + id + " не существует!");
-        }
-        return inMemoryUserStorage.getById(id);
+        Optional<User> userOpt = inMemoryUserStorage.getById(id);
+        User user = userOpt.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
+        log.info("Возвращены данные о фильме {}", userOpt.get().toString());
+        return user;
+
+
+        // if (!inMemoryUserStorage.getAll().containsKey(id)) {
+        //     throw new NotFoundException("Пользователь с Id = " + id + " не существует!");
+        //   }
+        //  return inMemoryUserStorage.getById(id);
     }
 
     public User addFriend(long friendOneId, long friendTwoId) {
+        Optional<User> userOptOne = inMemoryUserStorage.getById(friendOneId);
+        Optional<User> userOptTwo = inMemoryUserStorage.getById(friendTwoId);
 
-        inMemoryUserStorage.getById(friendOneId).getFriends().add(friendTwoId);
-        inMemoryUserStorage.getById(friendTwoId).getFriends().add(friendOneId);
-        return inMemoryUserStorage.getById(friendOneId);
+        User userOne = userOptOne.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendOneId + " не обнаружен"));
+        User userTwo = userOptTwo.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendTwoId + " не обнаружен"));
+
+        userOne.getFriends().add(friendTwoId);
+        userTwo.getFriends().add(friendOneId);
+
+        inMemoryUserStorage.update(userOne);
+        inMemoryUserStorage.update(userTwo);
+
+        return userOne;
     }
 
     public User dellFriend(long friendOneId, long friendTwoId) {
 
-        inMemoryUserStorage.getById(friendOneId).getFriends().remove(friendTwoId);
-        inMemoryUserStorage.getById(friendTwoId).getFriends().remove(friendOneId);
-        return inMemoryUserStorage.getById(friendOneId);
+        Optional<User> userOptOne = inMemoryUserStorage.getById(friendOneId);
+        Optional<User> userOptTwo = inMemoryUserStorage.getById(friendTwoId);
+
+        User userOne = userOptOne.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendOneId + " не обнаружен"));
+        User userTwo = userOptTwo.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendTwoId + " не обнаружен"));
+
+        userOne.getFriends().remove(friendTwoId);
+        userTwo.getFriends().remove(friendOneId);
+
+        inMemoryUserStorage.update(userOne);
+        inMemoryUserStorage.update(userTwo);
+
+        return userOne;
     }
 
-    public Collection<User> getFriends(long id) {
+    public List< User> getFriends(long id) {
 
-        Map<Long, User> friends = new HashMap<>();
-        for (Long idFriend : inMemoryUserStorage.getById(id).getFriends()) {
-            friends.put(idFriend, inMemoryUserStorage.getById(idFriend));
+        Optional<User> userOptOne = inMemoryUserStorage.getById(id);
+        User userOne = userOptOne.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
+
+        List< User> friends = new ArrayList<>();
+        for (Long idFriend : userOne.getFriends()) {
+            friends.add(inMemoryUserStorage.getById(idFriend).get());
         }
-        return friends.values();
+        return friends;
     }
 
-    public Collection<User> getCommonFriends(long friendOneId, long friendTwoId) {
+    public List<User> getCommonFriends(long friendOneId, long friendTwoId) {
 
-        Set<Long> friendsOne = inMemoryUserStorage.getById(friendOneId).getFriends();
-        Set<Long> friendsTwo = inMemoryUserStorage.getById(friendTwoId).getFriends();
-        return friendsOne.stream().filter(friendsTwo::contains)
-                .map(inMemoryUserStorage::getById)
-                .collect(Collectors.toList());
+        Optional<User> userOptOne = inMemoryUserStorage.getById(friendOneId);
+        Optional<User> userOptTwo = inMemoryUserStorage.getById(friendTwoId);
+
+        User userOne = userOptOne.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendOneId + " не обнаружен"));
+        User userTwo = userOptTwo.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendTwoId + " не обнаружен"));
+
+        Set<Long> friendsOne = userOne.getFriends();
+        Set<Long> friendsTwo = userTwo.getFriends();
+
+        List<User> commonFriends = new ArrayList<>();
+
+        for (long frIdOne : friendsOne) {
+            for (long frIdTwo : friendsTwo) {
+                if (frIdOne == frIdTwo) {
+                    commonFriends.add(inMemoryUserStorage.getById(frIdOne).get());
+                }
+            }
+        }
+        return commonFriends;
     }
-
-
 }

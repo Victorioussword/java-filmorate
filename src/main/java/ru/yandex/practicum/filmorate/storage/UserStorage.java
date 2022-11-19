@@ -4,6 +4,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface UserStorage {
 
@@ -15,7 +16,7 @@ public interface UserStorage {
     User update(User user);
 
     // новый методы
-    User  getById(long id);
+   Optional <User>  getById(long id);
 
 
 }

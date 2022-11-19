@@ -16,7 +16,6 @@ import java.util.*;
 @AllArgsConstructor
 public class Film {
 
-   // @Positive  // 16-11-22
     @Setter
     private long id;
 

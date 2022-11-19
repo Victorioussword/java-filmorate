@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 
 @Service
@@ -35,7 +37,11 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getById(long id) {
-        return users.get(id);
+    public Optional<User> getById(long id) {
+        if (!users.containsKey(id)) {
+            return Optional.empty();
+        } else {
+            return Optional.of(users.get(id));
+        }
     }
 }

@@ -4,13 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-
-import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -21,7 +18,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class FilmService {
-
 
     private final FilmStorage inMemoryFilmStorage;
     private final UserStorage inMemoryUserStorage;
@@ -39,10 +35,6 @@ public class FilmService {
     }
 
     public Film getById(long id) {
-        //  if (!inMemoryFilmStorage.getAll().containsKey(id)) {
-        //       throw new NotFoundException("Фильм с Id = " + id + " не существует!");
-        //   }
-        //   Film film = inMemoryFilmStorage.getById(id);
 
         Optional<Film> filmOpt = inMemoryFilmStorage.getById(id);
         Film film = filmOpt.orElseThrow(() -> new NotFoundException("Фильм с Id = " + id + " не существует!"));
@@ -58,17 +50,12 @@ public class FilmService {
     }
 
     public Film addLike(long id, long userId) {
-        //   if (!inMemoryFilmStorage.getAll().containsKey(id) || !inMemoryUserStorage.getAll().containsKey(userId)) {
-        //        throw new NotFoundException("Указан не существующий Id фильма или не существующий Id пользователя");
-        //    }
+
         Optional<Film> filmOptId = inMemoryFilmStorage.getById(id);
         Film filmId = filmOptId.orElseThrow(() -> new NotFoundException("Указан не существующий Id фильма или не существующий Id пользователя"));
 
         Optional<Film> filmOptUserId = inMemoryFilmStorage.getById(userId);
         Film filmUserId = filmOptUserId.orElseThrow(() -> new NotFoundException("Указан не существующий Id фильма или не существующий Id пользователя"));
-        // Film film = inMemoryFilmStorage.getById(id);
-        //  film.getLikes().add(userId);
-        //   inMemoryFilmStorage.update(film);
 
         filmId.getLikes().add(filmUserId.getId());
         return inMemoryFilmStorage.update(filmId);
@@ -76,14 +63,11 @@ public class FilmService {
 
     public Film delLike(long id, long userId) {
 
-        //   if (!inMemoryUserStorage.getAll().containsKey(userId)) {
-        //       log.info("Пользователь с  {} не существует", userId);
-        //       throw new NotFoundException("Пользователь с id" + userId + "не обнаружен");
-        //  }
-        //  Film film = inMemoryFilmStorage.getById(id);
+        Optional<User> userOpt = inMemoryUserStorage.getById(userId);
+        userOpt.orElseThrow(() -> new NotFoundException("User с id" + id + "не обнаружен"));
 
         Optional<Film> filmOpt = inMemoryFilmStorage.getById(id);
-        Film film = filmOpt.orElseThrow(() -> new NotFoundException("Пользователь с id" + userId + "не обнаружен"));
+        Film film = filmOpt.orElseThrow(() -> new NotFoundException("Фильм с id" + id + "не обнаружен"));
         for (long like : film.getLikes()) {
             if (like == userId) {
                 film.getLikes().remove(userId);
