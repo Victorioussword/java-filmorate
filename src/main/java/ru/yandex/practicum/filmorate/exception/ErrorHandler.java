@@ -2,10 +2,8 @@ package ru.yandex.practicum.filmorate.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.ConstraintViolationException;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -20,24 +18,16 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> validationExceptionHandler(final ValidationException e) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)  //  хендлер для исключений валидации
+    public Map<String, String> methodArgumentNotValidExceptionHandler(final MethodArgumentNotValidException e) {
         log.warn("400", e);
         return Map.of("400 {}", e.toString());
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> negativeTopQuantityHandler(ConstraintViolationException ex){
-        log.warn("400", ex);
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)  //хендлер для всех необработанных исключений
+    public Map<String, String> throwableHandler(final Throwable e) {
+        log.warn("500", e);
+        return Map.of("500 {}", e.toString());
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> methodArgumentNotValidExceptionHandler(final Throwable e) {
-        log.warn("400", e);
-        return Map.of("400 {}", e.toString());
-
-    }
-
 }
