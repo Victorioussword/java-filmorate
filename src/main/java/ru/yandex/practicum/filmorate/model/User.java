@@ -31,5 +31,5 @@ public class User {
 
     private String name;
 
-    private final Set<Long> friends = new HashSet<>();
+    private final Set<Long> friends = new HashSet<>(); // удалить при переходе в БД
 }

@@ -34,4 +34,7 @@ public class Film {
 
     private final Set<Long> likes = new HashSet<>();
 
+    private Genre genre;   // возможно нужно сделать final
+
+    private RatingMPA ratingMPA;  // возможно нужно сделать final
 }
