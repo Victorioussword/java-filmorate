@@ -1,12 +1,17 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.InMemory;
 
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
+// TODO удалить всю реализацию в памяти
+
+@Component
 public class InMemoryFilmStorage implements FilmStorage {
 
     private long id = 1;

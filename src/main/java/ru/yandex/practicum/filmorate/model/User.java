@@ -15,11 +15,6 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 public class User {
-
-    @PastOrPresent
-    @NotNull
-    private final LocalDate birthday;
-
     private long id;
 
     @Email
@@ -27,9 +22,21 @@ public class User {
     private final String email;
 
     @NotBlank
-    private final String login;
+    private final String login;  //не содержит пробелов
 
-    private String name;
 
-    private final Set<Long> friends = new HashSet<>();
+    private String name;  // Если name пустое - используется Login
+
+    @PastOrPresent
+    @NotNull
+    private final LocalDate birthday;
+
+
+
+
+
+
+
+
+   // private final Set<Long> friends = new HashSet<>();
 }

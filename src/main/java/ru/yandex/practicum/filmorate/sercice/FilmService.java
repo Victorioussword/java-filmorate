@@ -2,11 +2,14 @@ package ru.yandex.practicum.filmorate.sercice;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
@@ -19,8 +22,11 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
 
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+   private final FilmStorage filmStorage;
+   private final UserStorage userStorage;
+
+  //private final FilmDbStorage filmStorage;
+  //private  final UserDbStorage userStorage;
 
     public Map<Long, Film> getAll() {
         log.info("Возвращены данные о {} фильмах.", filmStorage.getAll().size());

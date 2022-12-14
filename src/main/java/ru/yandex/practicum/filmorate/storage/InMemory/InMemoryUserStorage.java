@@ -1,13 +1,18 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.InMemory;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+// TODO удалить всю реализацию в памяти
 
-@Service
+@Component
 public class InMemoryUserStorage implements UserStorage {
 
     private int id = 1;
@@ -22,10 +27,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User add(User user) {
+    public Optional<User> add(User user) {
         user.setId(id++);
         users.put(user.getId(), user);
-        return user;
+        return Optional.of( user);
     }
 
     @Override
@@ -42,4 +47,24 @@ public class InMemoryUserStorage implements UserStorage {
             return Optional.of(users.get(id));
         }
     }
+
+
+    @Override
+    public List<User> getFriends(long id) {
+        return null;
+    }
+
+
+    // Метод не используется - для реализации интерфейса
+    @Override
+    public void addFriend(long userId, long friendId) {
+
+    }
+
+    @Override
+    public User delFriendship(long userId, long friendId) {
+        return null;
+    }
+
+
 }

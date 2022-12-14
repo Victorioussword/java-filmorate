@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.sercice.UserService;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -50,10 +51,14 @@ public class UserController {
         return userService.addFriend(id, friendId);
     }
 
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public User dellById(@PathVariable long id, @PathVariable long friendId) {
 
-        return userService.dellFriend(id, friendId);
+
+
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User dellFriendshipById(@PathVariable long id, @PathVariable long friendId) {
+
+        return userService.dellFriendship(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
@@ -62,11 +67,11 @@ public class UserController {
         return userService.getFriends(id);
     }
 
-    @GetMapping("{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+   // @GetMapping("{id}/friends/common/{otherId}")
+  //  public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
 
-        return userService.getCommonFriends(id, otherId);
-    }
+   //     return userService.getCommonFriends(id, otherId);
+  //  }
 
     private void loginCheck(User user) {
         String login = user.getLogin();

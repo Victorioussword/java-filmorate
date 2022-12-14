@@ -22,6 +22,7 @@ public class ErrorHandler {
     public Map<String, String> methodArgumentNotValidExceptionHandler(final MethodArgumentNotValidException e) {
         log.warn("400", e);
         return Map.of("400 {}", e.toString());
+        // TODO СМОТРИ ВЕБИНАР!!!!! обработка ошибок 18 мин
     }
 
     @ExceptionHandler
