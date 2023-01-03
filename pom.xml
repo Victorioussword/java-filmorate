@@ -59,12 +59,14 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!--   Рекомендация наставника  -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-jdbc</artifactId>
+            </dependency>
 
 
-        <!--  Sprint 11 finish  -->
-
-
-
+            <!--  Sprint 11 finish  -->
 
 
     </dependencies>

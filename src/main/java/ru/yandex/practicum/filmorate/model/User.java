@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 import javax.validation.constraints.*;
@@ -14,6 +15,7 @@ import java.util.Set;
 
 @Data
 @AllArgsConstructor
+
 public class User {
     private long id;
 
@@ -31,12 +33,4 @@ public class User {
     @NotNull
     private final LocalDate birthday;
 
-
-
-
-
-
-
-
-   // private final Set<Long> friends = new HashSet<>();
-}
+  }

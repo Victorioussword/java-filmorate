@@ -1,17 +1,16 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.users;
 
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface UserStorage {
 
     // старые методы
-    Map<Long, User> getAll();  // все фильмы - get
+    List<User> getAll();
 
-    Optional<User> add(User user);  // добавляет фильм - post
+    Optional<User> add(User user);
 
     User update(User user);
 
@@ -24,6 +23,9 @@ public interface UserStorage {
     void addFriend (long userId, long friendId);
 
     User delFriendship (long userId, long friendId);
+
+
+    List<User> getCommonFriends(long id, long otherId);
 
 
 }
