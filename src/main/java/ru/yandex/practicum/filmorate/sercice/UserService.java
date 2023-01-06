@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.MethodArgumentNotValidException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.users.UserDbStorage;
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -16,17 +16,17 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private final UserStorage userStorage;
+    private final UserDbStorage userStorage;
 
-    public Map<Long, User> getAll() {
+    public List<User> getAll() {
         log.info("GET /users. Количество пользователей: {}", userStorage.getAll().size());
         return userStorage.getAll();
     }
 
     public User add(User user) {
-        userStorage.add(user);
-        log.info("Добавлен user: {}", user);
-        return user;
+        User user1 = userStorage.add(user).orElseThrow(() -> new NotFoundException("Ошибка добавления пользователя"));
+        log.info("Добавлен user: {}", user1);
+        return user1;
     }
 
     public User update(User user) {
@@ -38,47 +38,41 @@ public class UserService {
 
     public User getById(long id) {
         User user = userStorage.getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
-        log.info("Возвращены данные о фильме {}", user.toString());
+        log.info("Возвращены данные о пользователе {}", user.toString());
         return user;
     }
 
     public User addFriend(long friendOneId, long friendTwoId) {
-        User userOne = getById(friendOneId);
-        User userTwo = getById(friendTwoId);
-        userOne.getFriends().add(friendTwoId);
-        userTwo.getFriends().add(friendOneId);
-        userStorage.update(userOne);
-        userStorage.update(userTwo);
-        return userOne;
+        userStorage.addFriend(friendOneId, friendTwoId);
+        User user = userStorage.getById(friendOneId).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendOneId + " не обнаружен"));
+        return user;
     }
 
-    public User dellFriend(long friendOneId, long friendTwoId) {
-        User userOne = getById(friendOneId);
-        User userTwo = getById(friendTwoId);
-        userOne.getFriends().remove(friendTwoId);
-        userTwo.getFriends().remove(friendOneId);
-        userStorage.update(userOne);
-        userStorage.update(userTwo);
-        return userOne;
+    public User dellFriendship(long friendOneId, long friendTwoId) {
+        userStorage.delFriendship(friendOneId, friendTwoId);
+        User user = userStorage.getById(friendOneId).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendOneId + " не обнаружен"));
+        return user;
     }
 
     public List<User> getFriends(long id) {
-        User userOne = getById(id);
-        return userOne.getFriends().stream().map(this::getById).collect(Collectors.toList());
-    }
-
-    public List<User> getCommonFriends(long friendOneId, long friendTwoId) {
-        User userOne = getById(friendOneId);
-        User userTwo = getById(friendTwoId);
-        return userOne.getFriends().stream()
-                .filter(userTwo.getFriends()::contains)
-                .map(this::getById).collect(Collectors.toList());
+        return userStorage.getFriends(id);
     }
 
     private void checkId(long id) {
-        if (!userStorage.getAll().containsKey(id)) {
-            log.info("Пользователь не существует {}", id);
-            throw new MethodArgumentNotValidException("Пользователь с Id " + id + " не существует.");
+        Map<Long, User> users = new HashMap<>();
+        List<User> us = userStorage.getAll();
+        for (int i = 0; i < us.size(); i++) {
+            users.put(us.get(i).getId(), us.get(i));
         }
+
+        if (!users.containsKey(id)) {
+            log.info("Пользователь не существует {}", id);
+            throw new NotFoundException ("Пользователь с Id " + id + " не существует.");
+        }
+    }
+
+
+    public List<User> getCommonFriends(long id, long otherId) {
+       return userStorage.getCommonFriends (id, otherId);
     }
 }

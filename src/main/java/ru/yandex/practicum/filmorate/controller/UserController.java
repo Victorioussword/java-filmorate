@@ -7,8 +7,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.sercice.UserService;
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
+
 
 
 @Slf4j
@@ -20,8 +20,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Collection<User> get() {
-        return userService.getAll().values();
+    public List<User> get() {
+        return userService.getAll();
     }
 
     @GetMapping("/{id}")
@@ -51,9 +51,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public User dellById(@PathVariable long id, @PathVariable long friendId) {
+    public User dellFriendshipById(@PathVariable long id, @PathVariable long friendId) {
 
-        return userService.dellFriend(id, friendId);
+        return userService.dellFriendship(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
@@ -64,9 +64,9 @@ public class UserController {
 
     @GetMapping("{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
-
         return userService.getCommonFriends(id, otherId);
     }
+
 
     private void loginCheck(User user) {
         String login = user.getLogin();
