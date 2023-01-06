@@ -110,12 +110,12 @@ public class FilmDbStorage implements FilmStorage {
         final String sqlQueryFILM_and_MPA = "SELECT " +
                 "film.id, " +                // 1
                 "film.name, " +              // 2
-                "film.description, " +        //3
-                "film.realise_date, " +       //4
-                "film.duration, " +           //5
-                "film.mpa_id , " +            //6
-                "mpa.id, " +                  //7
-                "mpa.name " +                 //8
+                "film.description, " +        // 3
+                "film.realise_date, " +       // 4
+                "film.duration, " +           // 5
+                "film.mpa_id , " +            // 6
+                "mpa.id, " +                  // 7
+                "mpa.name " +                 // 8
                 " FROM film " +
                 "LEFT OUTER JOIN mpa ON film.mpa_id = mpa.id " +
                 " WHERE film.id = ?";
@@ -143,48 +143,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-    private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
-        return new Film(rs.getLong("id"),
-                rs.getString("name"),
-                rs.getString("description"),
-                LocalDate.parse(rs.getString("realise_date")),
-                Long.parseLong(rs.getString("duration")),
-                new RatingMpa(rs.getInt("id"), rs.getString("name")),
-                null
-        );
-    }
-
-
-    // TODO this metod shoul be checked - 17 failed/20 failed
-    @Override
-    public List<Film> getPopular(int top) {
-        final String sqlQuery = "SELECT f.id, " +
-                "f.name, " +
-                "f.description, " +
-                "f.realise_date, " +
-                "f.duration, " +
-                "f.mpa_id, " +
-                "count (user_id) " +
-                "FROM film  AS f " +
-                "left join likes AS l ON f.id = l.film_id " +
-                "group by (f.id) " +
-                "limit " + top;
-
-        List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm);
-        log.info("Метод getPopular() Возвращен TOP {}", top);
-        return films;
-    }
-
-
-    @Override
-    public Film addLike(long id, long userId) {
-        String sqlQuery = "INSERT INTO likes ( FILM_ID, USER_ID)" +
-                "VALUES ( ?, ?)";
-        jdbcTemplate.update(sqlQuery, id, userId);
-        Film film = getById(id).orElseThrow(() -> new NotFoundException("Фильм с Id = " + id + " не существует!"));
-        log.info("Возвращены данные о фильме {}", getById(id).get().toString());
-        return film;
-    }
 
 
     @Override
@@ -194,17 +152,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-    @Override
-    public List<Film> getAll() {
-        final String sqlQuery = "SELECT * " +
-                "FROM film " +
-                "JOIN mpa ON film.mpa_id = mpa.id";
-
-        List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilmForGetAll);
-
-        log.info("Метод getAll(). Возвращен список фильмов : {}", films.size());
-        return films;
-    }
 
 
     private Film makeFilmForGetAll(ResultSet resultSet, int rowNum) throws SQLException {
@@ -235,13 +182,9 @@ public class FilmDbStorage implements FilmStorage {
 
     private Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {
         Genre genre = new Genre(rs.getInt("id"), rs.getString("name"));
-        log.info("__________Метод makeGenre(), ID =  {},  name = {}", genre.getId(), genre.getName());
+        log.info("Метод makeGenre(), ID =  {},  name = {}", genre.getId(), genre.getName());
         return genre;
     }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 
     @Override
@@ -288,10 +231,161 @@ public class FilmDbStorage implements FilmStorage {
 
         Film filmForReturn = getById(film.getId()).orElseThrow(() -> new NotFoundException("Фильм с Id = " + film.getId()
                 + " не существует!"));
-        log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Список жанров =  {}", filmForReturn.getGenres().size());
+        log.info("Список жанров =  {}", filmForReturn.getGenres().size());
 
 
         return filmForReturn;
     }
+
+    @Override
+    public Film addLike(long id, long userId) {
+        String sqlQuery = "INSERT INTO likes ( FILM_ID, USER_ID)" +
+                "VALUES ( ?, ?)";
+        Film film = getById(id).orElseThrow(() -> new NotFoundException("Фильм с Id = " + id + " не существует!"));
+
+        jdbcTemplate.update(sqlQuery, id, userId);
+
+        log.info("Возвращены данные о фильме {}", getById(id).get().toString());
+        return film;
+    }
+
+
+
+
+
+    @Override
+    public List<Film> getAll() {
+        final String sqlQuery = "SELECT * " +
+                "FROM film " +
+                "JOIN mpa ON film.mpa_id = mpa.id";
+
+        List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilmForGetAll);
+
+        log.info("Метод getAll(). Возвращен список фильмов : {}", films.size());
+        return films;
+    }
+
+/////////////////////////////////////////////////////////
+
+    @Override
+    public List<Film> getPopular(int top) {
+        final String sqlQuery = "SELECT f.id, " +
+                "f.name, " +
+                "f.description, " +
+                "f.realise_date, " +
+                "f.duration, " +
+                "f.mpa_id, " +
+                "m.name, " +
+                "count (user_id) " +
+                "FROM film  AS f " +
+                "left join likes AS l ON f.id = l.film_id " +
+                "LEFT JOIN mpa as m ON f.mpa_id = m.id " +   // эта строка добавлеа 06.01.23
+                "group by (f.id) " +
+                "order by count (user_id) DESC " +
+                "limit " + top;
+
+        List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilmForPop);
+        log.info("Метод getPopular() Возвращен TOP {}", top);
+
+        for (int i = 0; i < films.size(); i++) {
+            films.get(i).setGenres(getGenresFromDB(films.get(i).getId()));
+
+        }
+
+        return films;
+    }
+
+
+
+    private Film makeFilmForPop(ResultSet resultSet, int rowNum) throws SQLException {
+        return Film.builder()
+                .id(resultSet.getInt("id"))
+                .name(resultSet.getString("name"))
+                .description(resultSet.getString("description"))
+                .releaseDate(resultSet.getDate("realise_date").toLocalDate())
+                .duration(resultSet.getInt("duration"))
+                .mpa(new RatingMpa(resultSet.getInt("mpa_id"), resultSet.getString("mpa.name")))
+                .genres(getGenresFromDB2(resultSet.getInt("id")))
+                .build();
+    }
+
+
+
+
+
+    private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
+        Film film =  new Film(rs.getLong("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                LocalDate.parse(rs.getString("realise_date")),
+                Long.parseLong(rs.getString("duration")),
+                new RatingMpa(rs.getInt("mpa_id"), rs.getString("name")),
+                null
+        );
+        log.info("makeFilm()  id = {}, mpa_id = {}, mpa+name = {}",film.getId(), film.getMpa().getId(), film.getMpa().getName());
+
+        return film;
+    }
+
+
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+//TODO удалить после прохождения всех тестов
+/*
+    @Override
+    public List<Film> getPopular(int top) {
+        final String sqlQuery = "SELECT f.id, " +
+                "f.name, " +
+                "f.description, " +
+                "f.realise_date, " +
+                "f.duration, " +
+                "f.mpa_id, " +
+                "count (user_id) " +
+                "FROM film  AS f " +
+                "left join likes AS l ON f.id = l.film_id " +
+                "LEFT JOIN mpa as m ON f.mpa_id = m.id " +   // эта строка добавлеа 06.01.23
+                "group by (f.id) " +
+                "order by count (user_id) DESC " +
+                "limit " + top;
+
+        List<Film> films = jdbcTemplate.query(sqlQuery, this::makeFilm);
+        log.info("Метод getPopular() Возвращен TOP {}", top);
+
+        for (int i = 0; i < films.size(); i++) {
+            films.get(i).setGenres(getGenresFromDB(films.get(i).getId()));
+
+        }
+
+        return films;
+    }
+
+
+
+
+    private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
+        Film film =  new Film(rs.getLong("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                LocalDate.parse(rs.getString("realise_date")),
+                Long.parseLong(rs.getString("duration")),
+                new RatingMpa(rs.getInt("mpa_id"), rs.getString("name")),
+                null
+        );
+        log.info("makeFilm()  id = {}, mpa_id = {}, mpa+name = {}",film.getId(), film.getMpa().getId(), film.getMpa().getName());
+
+        return film;
+    }
+
+ */
