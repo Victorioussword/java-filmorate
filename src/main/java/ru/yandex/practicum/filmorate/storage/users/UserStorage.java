@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public interface UserStorage {
 
-    // старые методы
     List<User> getAll();
 
     Optional<User> add(User user);
@@ -18,8 +17,6 @@ public interface UserStorage {
 
    List<User> getFriends(long id);
 
-
-   //  Новые методы
     void addFriend (long userId, long friendId);
 
     User delFriendship (long userId, long friendId);

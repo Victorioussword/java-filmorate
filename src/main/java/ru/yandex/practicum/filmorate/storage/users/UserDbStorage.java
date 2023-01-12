@@ -29,7 +29,7 @@ public class UserDbStorage implements UserStorage {
 
 
     @Override
-    public Optional<User> add (User user) {
+    public Optional<User> add(User user) {
         final String sqlQuery = "INSERT INTO USERS (EMAIL, LOGIN, NAME, BIRTHDAY) " +
                 "VALUES ( ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -49,7 +49,6 @@ public class UserDbStorage implements UserStorage {
 
         return Optional.of(user);
     }
-
 
 
     @Override
@@ -79,11 +78,9 @@ public class UserDbStorage implements UserStorage {
         } else {
             log.info("Пользователь с идентификатором {} не найден.", id);
             throw new NotFoundException("Пользователь не найден");
-           // return Optional.empty();
+            // return Optional.empty();
         }
     }
-
-
 
 
     @Override
@@ -96,17 +93,13 @@ public class UserDbStorage implements UserStorage {
     }
 
     public void addFriend(long userId, long friendId) {
-
         getById(userId);
         getById(friendId);
-
         String sqlQuery = "INSERT INTO FRIENDSHIP (USER_ID,  FRIEND_ID) " +
-                " VALUES (?, ?)";
-        log.info("ДОбавление в друзья. Запрос: {}", jdbcTemplate.update(sqlQuery, userId, friendId));
-       // jdbcTemplate.update(sqlQuery, userId, friendId);
+                "VALUES (?, ?)";
+        jdbcTemplate.update(sqlQuery, userId, friendId) ;
+        log.info("ДОбавление в друзья выполнено. User {}, Friend {}",  userId, friendId);
     }
-
-
 
     public List<User> getFriends(long id) {
         getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
@@ -117,31 +110,26 @@ public class UserDbStorage implements UserStorage {
 
         List<User> users = jdbcTemplate.query(sqlQuery2, new UserMapper(), id);
         log.info("Возвращен список друзей пользователя : {}", users.size());
-
         return users;
     }
-
 
     @Override
     public User delFriendship(long userId, long friendId) {
         User user = getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + userId + " не обнаружен"));
-        User user2 = getById(friendId).orElseThrow(() -> new NotFoundException("Друг с Id = " + friendId + " не обнаружен"));
+        User friend = getById(friendId).orElseThrow(() -> new NotFoundException("Друг с Id = " + friendId + " не обнаружен"));
         final String sqlQuery = "DELETE " +
                 "FROM FRIENDSHIP " +
                 "WHERE " +
-                " USER_ID = ? AND FRIEND_ID = ? ";
+                "USER_ID = ? AND FRIEND_ID = ? ";
         jdbcTemplate.update(sqlQuery, userId, friendId);
-
         return user;
     }
 
-
     @Override
     public List<User> getCommonFriends(long id, long otherId) {
-     User user = getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
-        User user2 = getById(otherId).orElseThrow(() -> new NotFoundException("Друг с Id = " + otherId + " не обнаружен"));
-
-        String sqlQuery =  "SELECT " +
+        getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
+        getById(otherId).orElseThrow(() -> new NotFoundException("Друг с Id = " + otherId + " не обнаружен"));
+        String sqlQuery = "SELECT " +
                 "USERS.ID, " +
                 "USERS.EMAIL, " +
                 "USERS.LOGIN, " +
@@ -158,8 +146,6 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, new UserMapper(), id, otherId);
     }
 
-
-
     public User deleteById(long id) {
         final String sqlQuery = "DELETE FROM users WHERE id = ?";
         User user = getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
@@ -170,16 +156,10 @@ public class UserDbStorage implements UserStorage {
 
     private User makeUser(SqlRowSet userRows) {
         return new User(
-                Long.parseLong(userRows.getString("ID")),
-                userRows.getString("EMAIL"),
-                userRows.getString("LOGIN"),
-                userRows.getString("NAME"),
-                LocalDate.parse(userRows.getString("BIRTHDAY")));
+                Long.parseLong(userRows.getString("id")),
+                userRows.getString("email"),
+                userRows.getString("login"),
+                userRows.getString("name"),
+                LocalDate.parse(userRows.getString("birthday")));
     }
-
-    private void checkFriendship(long userId, long friendId) {
-        User userOne = getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + userId + " не обнаружен"));
-        User userTwo = getById(friendId).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendId + " не обнаружен"));
-    }
-
 }

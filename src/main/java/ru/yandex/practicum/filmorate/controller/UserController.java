@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.sercice.UserService;
+
 import javax.validation.Valid;
 import java.util.List;
-
 
 
 @Slf4j
@@ -39,26 +39,22 @@ public class UserController {
     @PutMapping
     public User put(@Valid @RequestBody User user) {
         loginCheck(user);
-
         emptyNameCheck(user);
         return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable long id, @PathVariable long friendId) {
-
         return userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public User dellFriendshipById(@PathVariable long id, @PathVariable long friendId) {
-
         return userService.dellFriendship(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable long id) {
-
         return userService.getFriends(id);
     }
 
@@ -83,6 +79,5 @@ public class UserController {
             log.info("Поле name пустое - в качестве name использован логин {}", user.getLogin());
         }
     }
-
 }
 

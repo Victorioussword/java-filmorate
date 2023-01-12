@@ -32,7 +32,6 @@ public class FilmService {
         return film;
     }
 
-
     public List<Film> getAll() {
         log.info("Возвращены данные о {} фильмах.", filmStorage.getAll().size());
         return filmStorage.getAll();
@@ -45,21 +44,16 @@ public class FilmService {
     }
 
     public Film update(Film film) {
-
         checkId(film.getId());
-
         log.info("Фильм пришедший на обновление id= {}, name = {}, mpa = {}.",
                 film.getId(),
                 film.getName(),
                 film.getMpa().getId());
-
         Film filmForReturn = filmStorage.update(film);
-
         log.info("Обновлены данные о фильме id= {}, name = {}, mpa = {}.",
                 filmForReturn.getId(),
                 filmForReturn.getName(),
                 filmForReturn.getMpa().getId());
-
         return filmForReturn;
     }
 
@@ -67,7 +61,6 @@ public class FilmService {
         Film film = getById(id);  // проверка наличие фильма в базе
         checkUserId(userId);  // проверка наличия пользователя в базе
         filmStorage.addLike(id, userId);
-
         return film;
     }
 
@@ -85,7 +78,6 @@ public class FilmService {
     private Map<Long, Film> checkId(long id) {
         List<Film> films = filmStorage.getAll();
         Map<Long, Film> filmsForCheck = new HashMap<>();
-
         for (int i = 0; i < films.size(); i++) {
             filmsForCheck.put(films.get(i).getId(), films.get(i));
         }
@@ -98,9 +90,5 @@ public class FilmService {
 
     private void checkUserId(long id) {
         userStorage.getById(id).orElseThrow(() -> new NotFoundException("User с id " + id + " не обнаружен"));
-    }
-
-    public List<Genre> getGenres() {
-        return null;
     }
 }

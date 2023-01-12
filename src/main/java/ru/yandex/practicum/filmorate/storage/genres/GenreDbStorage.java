@@ -33,27 +33,16 @@ public class GenreDbStorage {
 
     public List<Genre> getAll() {
         final String sqlQuery = "SELECT *"
-                + " FROM GENRE";
+                + " FROM genre";
         List<Genre> genres = jdbcTemplate.query(sqlQuery, new GenreMapper());
         return genres;
     }
 
-
-    private Genre makeGenre(SqlRowSet genreRows) {
-        Genre genre = new Genre(genreRows.getInt("ID"),
-                genreRows.getString("NAME"));
-        return genre;
-    }
-
-
     public Optional<Genre> getById(int id) {
-
         final String sqlQuery = "SELECT * "
-                + " FROM GENRE " +
-                "WHERE ID = ?";
-
+                + " FROM genre " +
+                "WHERE id = ?";
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sqlQuery, new Object[]{id});
-
         if (genreRows.next()) {
             Genre genre = makeGenre(genreRows);
             log.info("Найден жанр: {} {}", genre.getId(), genre.getName());
@@ -64,7 +53,11 @@ public class GenreDbStorage {
         }
     }
 
-
+    private Genre makeGenre(SqlRowSet genreRows) {
+        Genre genre = new Genre(genreRows.getInt("id"),
+                genreRows.getString("name"));
+        return genre;
+    }
 }
 
 

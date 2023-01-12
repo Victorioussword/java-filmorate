@@ -24,8 +24,7 @@ public class User {
     private final String email;
 
     @NotBlank
-    private final String login;  //не содержит пробелов
-
+    private final String login;  // не состоит из пробелов
 
     private String name;  // Если name пустое - используется Login
 

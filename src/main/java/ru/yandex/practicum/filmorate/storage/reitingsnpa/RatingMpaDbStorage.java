@@ -22,19 +22,18 @@ public class RatingMpaDbStorage {
     private final  JdbcTemplate jdbcTemplate;
 
     public List<RatingMpa> getAll() {
-        final String sqlQuery = "SELECT *"
-                + " FROM mpa ";
+        final String sqlQuery = "SELECT * "
+                + "FROM mpa ";
         List<RatingMpa> ratingMpa = jdbcTemplate.query(sqlQuery, new RatingMPAMapper());
         return ratingMpa;
     }
-
 
     public Optional<RatingMpa> getById(int id) {
         final String sqlQuery = "SELECT " +
                 "id, " +
                 "name " +
-                " FROM mpa "+
-                " WHERE id = ?";
+                "FROM mpa "+
+                "WHERE id = ? ";
 
         SqlRowSet ratingRows = jdbcTemplate.queryForRowSet(sqlQuery, new Object[]{id});
         if (ratingRows.next()) {
@@ -47,14 +46,12 @@ public class RatingMpaDbStorage {
         }
     }
 
-
     private RatingMpa makeRatingMpa(SqlRowSet ratingMpaRows) {
         RatingMpa ratingMpa = new RatingMpa(
                 ratingMpaRows.getInt(1),
                 ratingMpaRows.getString(2));
         return ratingMpa;
     }
-
 }
 
 

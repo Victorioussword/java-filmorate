@@ -38,8 +38,6 @@ public class FilmController {
         return filmService.getById(id);
     }
 
-
-
     @PostMapping
     public Film post(@Valid @RequestBody Film film) {
         checkReleaseDate(film);
@@ -49,10 +47,7 @@ public class FilmController {
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
         log.info("Controller - Фильм для обновления mpa = {}.", film.getMpa().getId());
-
         checkReleaseDate(film);
-
-
         return filmService.update(film);
     }
 
@@ -63,7 +58,6 @@ public class FilmController {
 
     @DeleteMapping("/{id}/like/{userId}")
     public Film delLike(@PathVariable long id, @PathVariable long userId) {
-
         return filmService.delLike(id, userId);
     }
 
@@ -72,19 +66,10 @@ public class FilmController {
         return filmService.getPopular(count);
     }
 
-    @GetMapping("/genres")
-    public List<Genre> getGenres() {
-        return filmService.getGenres();
-    }
-
-
-
     private void checkReleaseDate(Film film) {
         if (film.getReleaseDate().isBefore(FIRST_FILM_DATE)) {
             log.info("Указаны не корректная дата выпуска {}.", film.getReleaseDate());
             throw new ValidationException("Кино не существовало до " + FIRST_FILM_DATE.toString());
         }
     }
-
-
 }

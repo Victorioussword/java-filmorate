@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.sercice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.MethodArgumentNotValidException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.users.UserDbStorage;
@@ -64,13 +63,11 @@ public class UserService {
         for (int i = 0; i < us.size(); i++) {
             users.put(us.get(i).getId(), us.get(i));
         }
-
         if (!users.containsKey(id)) {
             log.info("Пользователь не существует {}", id);
             throw new NotFoundException ("Пользователь с Id " + id + " не существует.");
         }
     }
-
 
     public List<User> getCommonFriends(long id, long otherId) {
        return userStorage.getCommonFriends (id, otherId);
