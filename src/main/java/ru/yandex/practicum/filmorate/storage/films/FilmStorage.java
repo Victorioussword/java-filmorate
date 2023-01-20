@@ -7,15 +7,13 @@ import java.util.Optional;
 
 public interface FilmStorage {
 
-    // старые методы
-    List<Film> getAll();  // все фильмы - get
+    List<Film> getAll();
 
-    Film add(Film film);  // добавляет фильм - post
+    Film add(Film film);
 
-   Film update(Film film);  // обновляет фильм - put
+   Film update(Film film);
 
 
-   // новый методы
     Optional <Film>  getById(long id);
 
     Film addLike(long id, long userId);

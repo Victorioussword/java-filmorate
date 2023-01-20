@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.users.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.friendship.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.users.UserStorage;
 
 import java.util.*;
@@ -16,6 +16,8 @@ import java.util.*;
 public class UserService {
 
     private final UserStorage userStorage;
+    private final FriendshipStorage friendshipStorage;
+
 
     public List<User> getAll() {
         log.info("GET /users. Количество пользователей: {}", userStorage.getAll().size());
@@ -44,12 +46,12 @@ public class UserService {
     public User addFriend(long friendOneId, long friendTwoId) {
         User user = userStorage.getById(friendOneId).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendOneId + " не обнаружен"));
         userStorage.getById(friendTwoId).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendTwoId + " не обнаружен"));
-        userStorage.addFriend(friendOneId, friendTwoId);
+        friendshipStorage.addFriend(friendOneId, friendTwoId);
         return user;
     }
 
     public User dellFriendship(long friendOneId, long friendTwoId) {
-        userStorage.delFriendship(friendOneId, friendTwoId);
+        friendshipStorage.delFriendship(friendOneId, friendTwoId);
         User user = userStorage.getById(friendOneId).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + friendOneId + " не обнаружен"));
         userStorage.getById(friendTwoId).orElseThrow(() -> new NotFoundException("Друг с Id = " + friendTwoId + " не обнаружен"));
         return user;
@@ -57,7 +59,7 @@ public class UserService {
 
     public List<User> getFriends(long id) {
         userStorage.getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
-        return userStorage.getFriends(id);
+        return friendshipStorage.getFriends(id);
     }
 
     private void checkId(long id) {
@@ -75,6 +77,6 @@ public class UserService {
     public List<User> getCommonFriends(long id, long otherId) {
         userStorage.getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
         userStorage.getById(otherId).orElseThrow(() -> new NotFoundException("Друг с Id = " + otherId + " не обнаружен"));
-        return userStorage.getCommonFriends(id, otherId);
+        return friendshipStorage.getCommonFriends(id, otherId);
     }
 }
