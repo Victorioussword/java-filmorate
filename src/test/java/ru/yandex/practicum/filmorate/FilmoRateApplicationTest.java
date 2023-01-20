@@ -14,7 +14,9 @@ import ru.yandex.practicum.filmorate.storage.films.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.users.UserDbStorage;
 
 import java.time.LocalDate;
-import java.util.List;
+
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -38,10 +40,16 @@ class FilmoRateApplicationTests {
             LocalDate.of(2022, 11, 5),
             120,
             new RatingMpa(1, "G"),
-            List.of(new Genre(1, "Комедия")));
+            null);
+
+    LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+    Genre genre = new Genre(1, "Комедия");
+
 
     @Test
     public void testFindUserById() {
+        genres.add(genre);
+        filmBefore.setGenres(genres);
         userStorage.add(userBefore);
         User userAfter = userStorage.getById(1).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + 1 + " не обнаружен"));
 

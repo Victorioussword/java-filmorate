@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.RatingMpa;
 
 import java.util.List;
@@ -15,9 +16,8 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-@Primary
-@Repository
-public class RatingMpaDbStorage {
+@Service
+public class RatingMpaDbStorage implements RatingMpaStorage {
 
     private final  JdbcTemplate jdbcTemplate;
 

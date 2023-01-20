@@ -27,7 +27,6 @@ public class FilmService {
 
     public Film add(Film film) {
         filmStorage.add(film);
-        System.out.println(film.getGenres());
         log.info("Добавлены данные о фильме {}.", film.toString());
         return film;
     }

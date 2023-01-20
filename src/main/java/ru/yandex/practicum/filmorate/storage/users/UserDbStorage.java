@@ -2,13 +2,11 @@ package ru.yandex.practicum.filmorate.storage.users;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -17,19 +15,16 @@ import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.*;
 
-
 @Slf4j
 @RequiredArgsConstructor
 @Component("usersInDB")
-@Primary
-@Repository
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
-
+    private final UserMapper userMapper;
 
     @Override
-    public Optional<User> add(User user) {
+    public User add(User user) {
         final String sqlQuery = "INSERT INTO USERS (EMAIL, LOGIN, NAME, BIRTHDAY) " +
                 "VALUES ( ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -44,10 +39,8 @@ public class UserDbStorage implements UserStorage {
         }, keyHolder);
 
         log.info("Пользователь с id {} добавлен", user.getId());
-
         user.setId(keyHolder.getKey().intValue());
-
-        return Optional.of(user);
+        return user;
     }
 
 
@@ -55,12 +48,10 @@ public class UserDbStorage implements UserStorage {
     public List<User> getAll() {
         final String sqlQuery = "SELECT *"
                 + " FROM USERS";
-
-        List<User> users = jdbcTemplate.query(sqlQuery, new UserMapper());
+        List<User> users = jdbcTemplate.query(sqlQuery, userMapper);
         log.info("Возвращен список позьзователей : {}", users.size());
         return users;
     }
-
 
     @Override
     public Optional<User> getById(long id) {
@@ -78,10 +69,8 @@ public class UserDbStorage implements UserStorage {
         } else {
             log.info("Пользователь с идентификатором {} не найден.", id);
             throw new NotFoundException("Пользователь не найден");
-            // return Optional.empty();
         }
     }
-
 
     @Override
     public User update(User user) {
@@ -93,42 +82,36 @@ public class UserDbStorage implements UserStorage {
     }
 
     public void addFriend(long userId, long friendId) {
-        getById(userId);
-        getById(friendId);
-        String sqlQuery = "INSERT INTO FRIENDSHIP (USER_ID,  FRIEND_ID) " +
+         String sqlQuery = "INSERT INTO FRIENDSHIP (USER_ID,  FRIEND_ID) " +
                 "VALUES (?, ?)";
-        jdbcTemplate.update(sqlQuery, userId, friendId) ;
-        log.info("ДОбавление в друзья выполнено. User {}, Friend {}",  userId, friendId);
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+        log.info("ДОбавление в друзья выполнено. User {}, Friend {}", userId, friendId);
     }
 
     public List<User> getFriends(long id) {
-        getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
-        final String sqlQuery2 = "SELECT *" +
+               final String sqlQuery2 = "SELECT *" +
                 " FROM FRIENDSHIP " +
                 " JOIN USERS ON USERS.ID = FRIENDSHIP.FRIEND_ID " +
                 " WHERE FRIENDSHIP.USER_ID = ?";
 
-        List<User> users = jdbcTemplate.query(sqlQuery2, new UserMapper(), id);
+        List<User> users = jdbcTemplate.query(sqlQuery2, userMapper, id);
         log.info("Возвращен список друзей пользователя : {}", users.size());
         return users;
     }
 
     @Override
-    public User delFriendship(long userId, long friendId) {
-        User user = getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + userId + " не обнаружен"));
-        User friend = getById(friendId).orElseThrow(() -> new NotFoundException("Друг с Id = " + friendId + " не обнаружен"));
+    public void delFriendship(long userId, long friendId) {
         final String sqlQuery = "DELETE " +
                 "FROM FRIENDSHIP " +
                 "WHERE " +
                 "USER_ID = ? AND FRIEND_ID = ? ";
         jdbcTemplate.update(sqlQuery, userId, friendId);
-        return user;
+        return;
     }
 
     @Override
     public List<User> getCommonFriends(long id, long otherId) {
-        getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
-        getById(otherId).orElseThrow(() -> new NotFoundException("Друг с Id = " + otherId + " не обнаружен"));
+
         String sqlQuery = "SELECT " +
                 "USERS.ID, " +
                 "USERS.EMAIL, " +
@@ -143,15 +126,7 @@ public class UserDbStorage implements UserStorage {
                 "FROM FRIENDSHIP " +
                 "WHERE USER_ID = ?)";
 
-        return jdbcTemplate.query(sqlQuery, new UserMapper(), id, otherId);
-    }
-
-    public User deleteById(long id) {
-        final String sqlQuery = "DELETE FROM users WHERE id = ?";
-        User user = getById(id).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + id + " не обнаружен"));
-        jdbcTemplate.update(sqlQuery, id);
-        log.info("Пользователь с id {} удален", id);
-        return user;
+        return jdbcTemplate.query(sqlQuery, userMapper, id, otherId);
     }
 
     private User makeUser(SqlRowSet userRows) {

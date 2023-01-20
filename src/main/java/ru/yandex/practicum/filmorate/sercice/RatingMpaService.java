@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.RatingMpa;
-import ru.yandex.practicum.filmorate.storage.reitingsnpa.RatingMpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.reitingsnpa.RatingMpaStorage;
 
-import java.util.Collection;
+import java.util.List;
 
 
 @Slf4j
@@ -15,16 +15,17 @@ import java.util.Collection;
 @Service
 public class RatingMpaService {
 
-    private final RatingMpaDbStorage ratingMpaStorage;
+    private final RatingMpaStorage ratingMpaStorage;
 
     public RatingMpa getById(int id) {
         RatingMpa ratingMpa = ratingMpaStorage.getById(id).orElseThrow(() -> new NotFoundException("Рейтинг с Id =" + id + " не существует"));
         return ratingMpa;
     }
 
-    public Collection<RatingMpa> getAll() {
-        log.info("GET /mpa. Количество рейтингов: {}", ratingMpaStorage.getAll().size());
-        return ratingMpaStorage.getAll();
+    public List<RatingMpa> getAll() {
+        List <RatingMpa> ratings = ratingMpaStorage.getAll();
+        log.info("GET /mpa. Количество рейтингов: {}", ratings.size());
+        return ratings;
     }
 
 }

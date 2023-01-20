@@ -9,7 +9,7 @@ public interface UserStorage {
 
     List<User> getAll();
 
-    Optional<User> add(User user);
+    User add(User user);
 
     User update(User user);
 
@@ -19,7 +19,7 @@ public interface UserStorage {
 
     void addFriend (long userId, long friendId);
 
-    User delFriendship (long userId, long friendId);
+    void delFriendship (long userId, long friendId);
 
 
     List<User> getCommonFriends(long id, long otherId);

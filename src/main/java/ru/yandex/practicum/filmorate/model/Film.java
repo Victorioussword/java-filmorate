@@ -17,7 +17,7 @@ import java.util.*;
 @Builder
 public class Film {
 
-    @Setter
+  // удалена аннотация
     private long id;
 
     @NotBlank
@@ -32,9 +32,9 @@ public class Film {
 
     @Positive
    private long duration;
-
+    @NotNull // добавлена аннотация
     private RatingMpa mpa;
 
-    private List<Genre> genres;
+    private LinkedHashSet<Genre> genres;  // Теперь используется LinkedHashSet
 
 }

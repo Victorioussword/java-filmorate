@@ -9,9 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.sercice.GenreService;
 import java.util.Collection;
+import java.util.List;
 
 
-@Slf4j
+@Slf4j   //добавлено логирование
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/genres")
@@ -20,12 +21,16 @@ public class GenreController {
         private final GenreService genreService;
 
         @GetMapping
-        public Collection<Genre> get() {
-            return genreService.getAll();
+        public List<Genre> get() {
+            List<Genre> genres = genreService.getAll();
+            log.info("GenreController. Метод get(). Размер возвращенного списка жанров = {}.", genres.size());
+            return genres;
         }
 
         @GetMapping("/{id}")
         public Genre getById(@PathVariable int id) {
-            return genreService.getById(id);
+            Genre genre = genreService.getById(id);
+            log.info("GenreController. Метод getById(). Возвращен жанр id = {}, name = {}.", genre.getId(), genre.getName());
+            return genre;
         }
 }
