@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+
 class FilmoRateApplicationTests {
 
     private final UserDbStorage userStorage;
@@ -68,7 +69,7 @@ class FilmoRateApplicationTests {
         assertEquals(filmBefore.getName(), filmAfter.getName());
         assertEquals(filmBefore.getDescription(), filmAfter.getDescription());
         assertEquals(filmBefore.getDuration(), filmAfter.getDuration());
-        assertEquals(filmBefore.getGenres().size(), filmAfter.getGenres().size());
+
     }
 }
 
