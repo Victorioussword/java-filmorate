@@ -62,6 +62,7 @@ public class FilmDbStorage implements FilmStorage {
 
         final String sqlQueryDelGenres = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
         jdbcTemplate.update(sqlQueryDelGenres, film.getId());
+
         final String sqlQueryFilm = "UPDATE FILM SET " +
                 "NAME = ?, " +
                 "DESCRIPTION = ?, " +
@@ -81,7 +82,6 @@ public class FilmDbStorage implements FilmStorage {
         Film filmForReturn = getById(film.getId()).orElseThrow(() -> new NotFoundException("Фильм с Id = " + film.getId()
                 + " не существует!"));
         return filmForReturn;
-      //  return film;
     }
 
 
@@ -105,7 +105,9 @@ public class FilmDbStorage implements FilmStorage {
         if (filmRows.next()) {
             filmForReturn = makeFilm(filmRows);
             log.info("Метод getById(), возвращен фильм с id {}, с названием {}", filmForReturn.getId(), filmForReturn.getName());
-          //  log.info("______________!!!!!!!!!!!!!!!ПРОВЕРКА!!!!!! {}", filmForReturn.getGenres().isEmpty());
+           if(filmForReturn.getGenres() == null){
+               filmForReturn.setGenres(new LinkedHashSet<>());
+           }
             return Optional.of(filmForReturn);
         } else {
             log.info("Метод getById(). фильм с идентификаторо {} не найден.", id);
@@ -122,6 +124,11 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(sqlQuery, this::buildFilm);  // Все фильмы без жанров
         log.info("Метод getAll(). Возвращен список фильмов : {}", films.size());
         genreStorage.getGenresFromDB(films);
+        for (int i = 0; i <films.size() ; i++) {
+            if (films.get(i).getGenres() == null){
+                films.get(i).setGenres(new LinkedHashSet<>());
+            }
+        }
         return films;
     }
 
@@ -169,7 +176,7 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(resultSet.getDate("realise_date").toLocalDate())
                 .duration(resultSet.getInt("duration"))
                 .mpa(new RatingMpa(resultSet.getInt("mpa_id"), resultSet.getString("mpa.name")))
-                .genres(new LinkedHashSet<>(10))
+                .genres(new LinkedHashSet<>())
                 .build();
     }
 
@@ -181,13 +188,12 @@ public class FilmDbStorage implements FilmStorage {
                 LocalDate.parse(filmRows.getString("REALISE_DATE")),
                 Long.parseLong(filmRows.getString("DURATION")),
                 new RatingMpa(filmRows.getInt(7), filmRows.getString(8)),
-                new LinkedHashSet<>(10)
+                new LinkedHashSet<>()
         );
+
         List<Film> films = new ArrayList<>();
         films.add(film);
-
         genreStorage.getGenresFromDB(films);
-
         return films.get(0);
     }
 }

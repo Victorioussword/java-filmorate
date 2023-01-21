@@ -53,47 +53,39 @@ public class GenreDbStorage implements GenreStorage {
 
     public void getGenresFromDB(List<Film> films) {
 
-        //Long - ID фильма
-        //List<Genre> - жанры фильма
-        Map<Long, LinkedHashSet<Genre>> genresOfFilms = new HashMap<>(films.size());  // Map со списками жанров
+        Map<Long, LinkedHashSet<Genre>> genresOfFilms = new HashMap<>(films.size());  // Map со списками жанров для фильмов
 
         //Получаем MAP со всеми жанрами и их id
         Map<Integer, Genre> genres =
                 getAll().stream().collect(Collectors.toMap(genre -> genre.getId(), Function.identity()));
 
-        StringJoiner filmIds = new StringJoiner(",");
-        for (Film film: films) {
+        StringJoiner filmIds = new StringJoiner(",");   // собираем строку для запроса
+        for (Film film : films) {
             filmIds.add(Long.toString(film.getId()));
         }
-        String sqlFilmsQuery = String.format(
+        String sqlFilmsQuery = String.format(   // добавлем собранную строку к запросу
                 "SELECT film_id, genre_id FROM film_genre WHERE film_id IN (%s) ORDER BY film_id",
                 filmIds
         );
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(sqlFilmsQuery);
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(sqlFilmsQuery);   // отправляем запрос
         while (resultSet.next()) {
             long filmId = resultSet.getInt("film_id");
             int filmGenreId = resultSet.getInt("genre_id");
-            Genre filmGenre = genres.get(filmGenreId);
+            Genre filmGenre = genres.get(filmGenreId);  // достаем жанр
 
             log.info("getGenresFromDB(). Найден жанр: id {} название {},  для фильма id {}",
                     filmGenreId,
                     filmGenre.getName(),
                     filmId
             );
-
-            if (!genresOfFilms.containsKey(filmId)) {
-
+            if (!genresOfFilms.containsKey(filmId)) {  // ДОбавляем пустой LHS
                 genresOfFilms.put(filmId, new LinkedHashSet<>());
             }
-
-            genresOfFilms.get(filmId).add(filmGenre);
-
+            genresOfFilms.get(filmId).add(filmGenre);   // заполняем LHS
         }
-
-        for (Film film: films) {
-            film.setGenres(genresOfFilms.get(film.getId()));
+        for (Film film : films) {
+            film.setGenres(genresOfFilms.get(film.getId()));  // устанавливаем пришедшему фильму LHS жанров
         }
-
     }
 
 
@@ -102,36 +94,6 @@ public class GenreDbStorage implements GenreStorage {
                 genreRows.getString("name"));
         return genre;
     }
-
-
-    public Map<Long, List<Genre>> getGenresFromDB2(List<Film> films) {
-
-
-        Map<Long, List<Genre>> genresOfFilms = new HashMap<>(films.size()); // Map со списками жанров КЛюч - ID фильма - Для возврата!!!
-
-        Map<Integer, Genre> genres = getAll().stream().
-                collect(Collectors.toMap(genre -> genre.getId(), identity()));  //Получаем MAP со всеми жанрами и их id
-
-        String allId = String.format("SELECT film_id, genre_id FROM film_genre ORDER BY film_id ");  // Запрашиваем фильмы и жанры
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(allId);
-
-        while (resultSet.next()) {    // Собираем Жанр
-            long filmId = resultSet.getInt("film_id");
-            int filmGenreId = resultSet.getInt("genre_id");
-            Genre filmGenre = genres.get(filmGenreId);
-            log.info("getGenresFromDB(). Найден жанр: id {} название {},  для фильма id {}",
-                    filmGenreId,
-                    filmGenre.getName(),
-                    filmId
-            );
-            if (!genresOfFilms.containsKey(filmId)) {
-                genresOfFilms.put(filmId, new ArrayList<>());
-            }
-            genresOfFilms.get(filmId).add(filmGenre);
-        }
-        return genresOfFilms;
-    }
-
 }
 
 
