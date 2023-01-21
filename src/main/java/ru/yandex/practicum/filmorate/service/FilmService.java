@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.sercice;
+package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,12 +7,11 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import ru.yandex.practicum.filmorate.storage.films.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.likes.LikesStorage;
 import ru.yandex.practicum.filmorate.storage.users.UserStorage;
 
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Slf4j
@@ -22,7 +21,8 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-
+    private final LikesStorage likesStorage;
+   // private final GenreStorage genreStorage;
 
     public Film add(Film film) {
         filmStorage.add(film);
@@ -42,7 +42,7 @@ public class FilmService {
     }
 
     public Film update(Film film) {
-        checkId(film.getId());
+        filmStorage.getById(film.getId());
         log.info("Фильм пришедший на обновление id= {}, name = {}, mpa = {}.",
                 film.getId(),
                 film.getName(),
@@ -55,38 +55,28 @@ public class FilmService {
         return filmForReturn;
     }
 
+
+    public List<Film> getPopular(int top) {
+        return filmStorage.getPopular(top);
+    }
+
+
+    private void checkUserId(long id) {
+        userStorage.getById(id);
+    }
+
+
     public Film addLike(long id, long userId) {
-        Film film = getById(id);  // проверка наличие фильма в базе
-        checkUserId(userId);  // проверка наличия пользователя в базе
-        filmStorage.addLike(id, userId);
+        Film film = getById(id);
+        checkUserId(userId);
+        likesStorage.addLike(id, userId);
         return film;
     }
 
     public Film delLike(long id, long userId) {
         checkUserId(userId);
         Film film = getById(id);
-        filmStorage.delLike(id, userId);
+        likesStorage.delLike(id, userId);
         return film;
-    }
-
-    public List<Film> getPopular(int top) {
-        return filmStorage.getPopular(top);
-    }
-
-    private Map<Long, Film> checkId(long id) {
-        List<Film> films = filmStorage.getAll();
-        Map<Long, Film> filmsForCheck = new HashMap<>();
-        for (int i = 0; i < films.size(); i++) {
-            filmsForCheck.put(films.get(i).getId(), films.get(i));
-        }
-        if (!filmsForCheck.containsKey(id)) {
-            log.info("Фильм с id {} не найден", id);
-            throw new NotFoundException("Фильм с id = " + id + " не обнаружен");
-        }
-        return filmsForCheck;
-    }
-
-    private void checkUserId(long id) {
-        userStorage.getById(id).orElseThrow(() -> new NotFoundException("User с id " + id + " не обнаружен"));
     }
 }

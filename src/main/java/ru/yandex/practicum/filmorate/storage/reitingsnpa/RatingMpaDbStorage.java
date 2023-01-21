@@ -19,12 +19,13 @@ import java.util.Optional;
 @Service
 public class RatingMpaDbStorage implements RatingMpaStorage {
 
-    private final  JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final RatingMPAMapper ratingMPAMapper;
 
     public List<RatingMpa> getAll() {
         final String sqlQuery = "SELECT * "
                 + "FROM mpa ";
-        List<RatingMpa> ratingMpa = jdbcTemplate.query(sqlQuery, new RatingMPAMapper());
+        List<RatingMpa> ratingMpa = jdbcTemplate.query(sqlQuery, ratingMPAMapper);
         return ratingMpa;
     }
 
@@ -32,7 +33,7 @@ public class RatingMpaDbStorage implements RatingMpaStorage {
         final String sqlQuery = "SELECT " +
                 "id, " +
                 "name " +
-                "FROM mpa "+
+                "FROM mpa " +
                 "WHERE id = ? ";
 
         SqlRowSet ratingRows = jdbcTemplate.queryForRowSet(sqlQuery, new Object[]{id});

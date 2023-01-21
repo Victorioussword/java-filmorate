@@ -52,7 +52,7 @@ class FilmoRateApplicationTests {
         genres.add(genre);
         filmBefore.setGenres(genres);
         userStorage.add(userBefore);
-        User userAfter = userStorage.getById(1).orElseThrow(() -> new NotFoundException("Пользователь с Id = " + 1 + " не обнаружен"));
+        User userAfter = userStorage.getById(1); //.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + 1 + " не обнаружен"));
 
         assertEquals(userBefore.getId(), userAfter.getId());
         assertEquals(userBefore.getName(), userAfter.getName());

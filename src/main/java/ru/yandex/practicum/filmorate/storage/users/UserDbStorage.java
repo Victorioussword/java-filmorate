@@ -53,7 +53,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> getById(long id) {
+    public User getById(long id) {
 
         final String sqlQuery = "SELECT *"
                 + " FROM USERS " +
@@ -63,7 +63,7 @@ public class UserDbStorage implements UserStorage {
         if (userRows.next()) {
             User user = makeUser(userRows);
             log.info("Найден пользователь: {} {}", user.getId(), user.getName());
-            return Optional.of(user);
+            return user;
 
         } else {
             log.info("Пользователь с идентификатором {} не найден.", id);
