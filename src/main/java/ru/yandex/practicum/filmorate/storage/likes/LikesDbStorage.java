@@ -21,9 +21,9 @@ public class LikesDbStorage implements LikesStorage {
     public Film addLike(long id, long userId) {
         String sqlQuery = "INSERT INTO LIKES ( FILM_ID, USER_ID)" +
                 "VALUES ( ?, ?)";
-        Film film = filmStorage.getById(id).orElseThrow(() -> new NotFoundException("Фильм с Id = " + id + " не существует!"));
+        Film film = filmStorage.getById(id); //.orElseThrow(() -> new NotFoundException("Фильм с Id = " + id + " не существует!"));
         jdbcTemplate.update(sqlQuery, id, userId);
-        log.info("Возвращены данные о фильме {}", filmStorage.getById(id).get().toString());
+        log.info("Возвращены данные о фильме {}", film.toString());
         return film;
     }
 

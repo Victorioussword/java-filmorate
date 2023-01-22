@@ -35,6 +35,10 @@ public class Film {
     @NotNull // добавлена аннотация
     private RatingMpa mpa;
 
-    private LinkedHashSet<Genre> genres;  // Теперь используется LinkedHashSet
+    private LinkedHashSet<Genre> genres = new LinkedHashSet<>();  // Теперь используется LinkedHashSet
+
+    public void addGenre (Genre genre){
+        genres.add(genre);
+    }
 
 }

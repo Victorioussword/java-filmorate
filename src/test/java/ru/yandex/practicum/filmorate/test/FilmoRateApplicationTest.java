@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.storage.users.UserDbStorage;
 
 import java.time.LocalDate;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,7 +51,7 @@ class FilmoRateApplicationTests {
         genres.add(genre);
         filmBefore.setGenres(genres);
         userStorage.add(userBefore);
-        User userAfter = userStorage.getById(1); //.orElseThrow(() -> new NotFoundException("Пользователь с Id = " + 1 + " не обнаружен"));
+        User userAfter = userStorage.getById(1);
 
         assertEquals(userBefore.getId(), userAfter.getId());
         assertEquals(userBefore.getName(), userAfter.getName());
@@ -63,7 +62,7 @@ class FilmoRateApplicationTests {
     @Test
     public void testFindFilmById() {
         filmStorage.add(filmBefore);
-        Film filmAfter = filmStorage.getById(1).orElseThrow(() -> new NotFoundException("Фильм с Id = " + 1 + " не обнаружен"));
+        Film filmAfter = filmStorage.getById(1);
 
         assertEquals(filmBefore.getId(), filmAfter.getId());
         assertEquals(filmBefore.getName(), filmAfter.getName());

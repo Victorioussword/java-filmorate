@@ -7,10 +7,13 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import ru.yandex.practicum.filmorate.storage.films.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genres.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.likes.LikesStorage;
 import ru.yandex.practicum.filmorate.storage.users.UserStorage;
 
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 
@@ -22,7 +25,7 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final LikesStorage likesStorage;
-   // private final GenreStorage genreStorage;
+    private final GenreDbStorage genreStorage;
 
     public Film add(Film film) {
         filmStorage.add(film);
@@ -31,14 +34,20 @@ public class FilmService {
     }
 
     public List<Film> getAll() {
-        log.info("Возвращены данные о {} фильмах.", filmStorage.getAll().size());
-        return filmStorage.getAll();
+        List<Film> filmsForReturn = filmStorage.getAll();
+        log.info("Возвращены данные о {} фильмах.", filmsForReturn.size());
+        genreStorage.getGenresFromDB(filmsForReturn);
+        return filmsForReturn;
     }
 
     public Film getById(long id) {
-        Film film = filmStorage.getById(id).orElseThrow(() -> new NotFoundException("Фильм с Id = " + id + " не существует!"));
-        log.info("Возвращены данные о фильме {}", filmStorage.getById(id).get().toString());
-        return film;
+        Film film = filmStorage.getById(id);
+        log.info("Возвращены данные о фильме {}", film.toString());
+
+        List<Film> films = new ArrayList<>();
+        films.add(film);
+        genreStorage.getGenresFromDB(films);
+        return films.get(0);
     }
 
     public Film update(Film film) {
@@ -52,7 +61,7 @@ public class FilmService {
                 filmForReturn.getId(),
                 filmForReturn.getName(),
                 filmForReturn.getMpa().getId());
-        return filmForReturn;
+        return film;
     }
 
 
