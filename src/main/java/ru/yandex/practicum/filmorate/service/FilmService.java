@@ -8,12 +8,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import ru.yandex.practicum.filmorate.storage.films.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genres.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.genres.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.likes.LikesStorage;
 import ru.yandex.practicum.filmorate.storage.users.UserStorage;
 
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 
@@ -25,7 +25,7 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final LikesStorage likesStorage;
-    private final GenreDbStorage genreStorage;
+    private final GenreStorage genreStorage;
 
     public Film add(Film film) {
         filmStorage.add(film);
@@ -46,8 +46,8 @@ public class FilmService {
 
         List<Film> films = new ArrayList<>();
         films.add(film);
-        genreStorage.getGenresFromDB(films);
-        return films.get(0);
+        genreStorage.getGenresFromDB(List.of(film));
+        return film;
     }
 
     public Film update(Film film) {

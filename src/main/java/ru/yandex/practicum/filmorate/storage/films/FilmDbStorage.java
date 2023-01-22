@@ -146,7 +146,7 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getGenres() != null && film.getGenres().size() != 0) {
             List<Genre> genres = new ArrayList<>(film.getGenres());
             String sqlQueryGenres = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
-            jdbcTemplate.batchUpdate(sqlQueryGenres, genres, 100,
+            jdbcTemplate.batchUpdate(sqlQueryGenres, genres, genres.size(),
                     (PreparedStatement ps, Genre genre) -> {
                         ps.setLong(1, film.getId());
                         ps.setLong(2, genre.getId());
