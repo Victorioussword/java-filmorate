@@ -6,11 +6,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.sercice.FilmService;
+import ru.yandex.practicum.filmorate.service.FilmService;
+
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 
 @Slf4j
@@ -25,8 +27,8 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<Film> get() {
-        return filmService.getAll().values();
+    public List<Film> get() {
+        return filmService.getAll();
     }
 
     @GetMapping("/{id}")
@@ -42,25 +44,23 @@ public class FilmController {
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
+        log.info("Controller - Фильм для обновления mpa = {}.", film.getMpa().getId());
         checkReleaseDate(film);
-
-        filmService.update(film);
-        return film;
+        return filmService.update(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLike(@PathVariable long id, @PathVariable  long userId) {
+    public Film addLike(@PathVariable long id, @PathVariable long userId) {
         return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public Film delLike(@PathVariable long id, @PathVariable long userId) {
-
         return filmService.delLike(id, userId);
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) @Positive Integer count) {
+    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") @Positive Integer count) {   // удалено required = false
         return filmService.getPopular(count);
     }
 
@@ -70,7 +70,4 @@ public class FilmController {
             throw new ValidationException("Кино не существовало до " + FIRST_FILM_DATE.toString());
         }
     }
-
-
-
 }

@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.sercice.UserService;
+import ru.yandex.practicum.filmorate.service.UserService;
+
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -20,8 +20,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Collection<User> get() {
-        return userService.getAll().values();
+    public List<User> get() {
+        return userService.getAll();
     }
 
     @GetMapping("/{id}")
@@ -39,34 +39,30 @@ public class UserController {
     @PutMapping
     public User put(@Valid @RequestBody User user) {
         loginCheck(user);
-
         emptyNameCheck(user);
         return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable long id, @PathVariable long friendId) {
-
         return userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public User dellById(@PathVariable long id, @PathVariable long friendId) {
-
-        return userService.dellFriend(id, friendId);
+    public User dellFriendshipById(@PathVariable long id, @PathVariable long friendId) {
+        return userService.dellFriendship(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable long id) {
-
         return userService.getFriends(id);
     }
 
     @GetMapping("{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
-
         return userService.getCommonFriends(id, otherId);
     }
+
 
     private void loginCheck(User user) {
         String login = user.getLogin();
@@ -83,6 +79,5 @@ public class UserController {
             log.info("Поле name пустое - в качестве name использован логин {}", user.getLogin());
         }
     }
-
 }
 
